@@ -7,3 +7,15 @@ docker run -it --rm \
   -v ny_taxi_postgres_data:/var/lib/postgresql \
   -p 5432:5432 \
   postgres:18
+
+
+ uv run ingest_data.py \
+  --pg-user root \
+  --pg-pass root \
+  --pg-host localhost \
+  --pg-port 5432 \
+  --pg-db ny_taxi \
+  --year 2021 \
+  --month 1 \
+  --target-table yellow_taxi_data \
+  --chunksize 100000
