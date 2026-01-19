@@ -9,7 +9,7 @@ terraform {
 
 provider "google" {
   # config option
-  credentials =
+
   project = "test-data-eng-course"
   region  = "europe-west8"
 }
