@@ -30,6 +30,7 @@ services:
     build: .
     container_name: ingest
     environment:
+      GREEN_TAXY_URL: ${GREEN_TAXY_URL}
       PGUSER: root
       PGPASSWORD: root
       PGHOST: postgres
