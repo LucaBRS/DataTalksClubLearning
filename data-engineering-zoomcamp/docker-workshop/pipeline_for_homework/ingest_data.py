@@ -1,13 +1,17 @@
-import click
+import requests
+from io import BytesIO
 import pandas as pd
 from sqlalchemy import create_engine
 from tqdm.auto import tqdm
 from math import ceil
 import os
 
-url_green = (
-    "https://d37ci6vzurychx.cloudfront.net/trip-data/green_tripdata_2025-11.parquet"
-)
+
+url_green = os.getenv("GREEN_TAXY_URL")
+if not url_green:
+    raise RuntimeError("GREEN_TAXY_URL is not set")
+
+
 url_zones = "https://github.com/DataTalksClub/nyc-tlc-data/releases/download/misc/taxi_zone_lookup.csv"
 
 
@@ -18,6 +22,11 @@ location_dtype = {
     "service_zone": "string",
 }
 
+r = requests.get(url_green, headers={"User-Agent": "Mozilla/5.0"})
+r.raise_for_status()
+
+if len(r.content) == 0:
+    raise RuntimeError("Empty response (likely WAF challenge)")
 
 df_g = pd.read_parquet(url_green)
 df_z = pd.read_csv(url_zones, dtype=location_dtype)
