@@ -6,6 +6,7 @@
 **.terraform.lock.*
 **google_credentials.json
 **logs/
+.mpy-workbench
 **.env
 **__pycache__/
 .history
