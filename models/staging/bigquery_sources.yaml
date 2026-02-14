@@ -1,0 +1,10 @@
+version: 2
+
+sources:
+  - name: row_data
+    description: "rowdata source ny taxi"
+    database: test-data-eng-course #project ID in bigquery
+    schema: ny_taxi #dataset name
+    tables:
+      - name: yellow_taxi
+      - name: green_taxi
