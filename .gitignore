@@ -20,10 +20,15 @@ secrets/
 **/secrets/
 **/secrets/**
 *.gcp
+<<<<<<< HEAD
+=======
+
+>>>>>>> fb9aba29dbe69fd18f650dea1d8732b2484ce7d9
 .bruin.yml
 logs/runs
 logs/*.log
 __pycache__/
+<<<<<<< HEAD
 *.py[cod]
 *.log
 *.tmp
@@ -48,3 +53,6 @@ dist/
 *.out
 *.err
 *.pid
+=======
+*.py[cod]
+>>>>>>> fb9aba29dbe69fd18f650dea1d8732b2484ce7d9
