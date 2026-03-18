@@ -15,7 +15,7 @@ def ride_from_row(row) -> Ride:
         dropoff_location_id=row["DOLocationID"],
         trip_distance=row["trip_distance"],
         total_amount=row["total_amount"],
-        pickup_datetime=str(row["lpep_pickup_datetime"])  # ← diverso da yellow!
+        pickup_datetime=str(row["lpep_pickup_datetime"])  # ← different form yellow taxi!
     )
 
 def ride_serializer(ride: Ride) -> bytes:
