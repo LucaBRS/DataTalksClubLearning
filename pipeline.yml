@@ -1,0 +1,4 @@
+name: eurostat_pipeline
+schedule: "@daily"
+default_connections:
+  duckdb: "local_duckdb"

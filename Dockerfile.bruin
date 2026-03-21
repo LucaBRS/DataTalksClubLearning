@@ -1,0 +1,7 @@
+FROM ghcr.io/bruin-data/bruin:v0.11.493
+
+WORKDIR /workspace
+
+COPY pyproject.toml .
+
+RUN /home/bruin/.bruin/uv sync

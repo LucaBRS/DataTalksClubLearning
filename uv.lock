@@ -81,6 +81,7 @@ name = "datatalksclublearning"
 version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
+    { name = "eurostat" },
     { name = "pandas" },
     { name = "pyarrow" },
     { name = "requests" },
@@ -88,9 +89,23 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
+    { name = "eurostat", specifier = ">=1.1.1" },
     { name = "pandas", specifier = ">=3.0.1" },
     { name = "pyarrow", specifier = ">=23.0.1" },
     { name = "requests", specifier = ">=2.32.5" },
+]
+
+[[package]]
+name = "eurostat"
+version = "1.1.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "pandas" },
+    { name = "requests" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/c8/f0/5ef71bc8983335f509170f28a3e4c5ef5a6cbe4c42232e341383746f0ccf/eurostat-1.1.1.tar.gz", hash = "sha256:6b70c5278084f603d6e92f481c1893f8ccc96f80d09347a822873a7ee679d54d", size = 22591, upload-time = "2024-06-13T15:26:14.018Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/51/a0/51b4254341558a69002100e1bc9df436c000e03a1ae3488b7e431c61b890/eurostat-1.1.1-py3-none-any.whl", hash = "sha256:67297cbc5aeeded01cd48c18fe27ec6769658ebcafcf517758cf21f711faea11", size = 16095, upload-time = "2024-06-13T15:26:12.116Z" },
 ]
 
 [[package]]

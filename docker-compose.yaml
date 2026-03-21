@@ -1,0 +1,24 @@
+services:
+
+  bruin:
+    build:
+      context: .
+      dockerfile: Dockerfile.bruin
+    # image: ghcr.io/bruin-data/bruin:v0.11.493
+
+    container_name: bruin-pipeline
+    working_dir: /workspace
+    volumes:
+      - ./.git:/workspace/.git
+      - ./.gitignore:/workspace/.gitignore
+      - ./pyproject.toml:/workspace/pyproject.toml
+      - ./.bruin.yml:/workspace/.bruin.yml
+      - ./pipeline.yml:/workspace/pipeline.yml
+      - ./assets:/workspace/assets
+      - ./data:/workspace/data
+    environment:
+      - BRUIN_ENV=local
+      - UV_PROJECT_ENVIRONMENT=/home/bruin/workspace/.venv
+    command: tail -f /dev/null
+    stdin_open: true
+    tty: true
