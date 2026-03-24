@@ -22,3 +22,15 @@ services:
     command: tail -f /dev/null
     stdin_open: true
     tty: true
+
+
+  terraform:
+    image: hashicorp/terraform:latest
+    container_name: terraform
+    working_dir: /workspace
+    volumes:
+      - ./terraform:/workspace
+      - ./credentials:/workspace/credentials
+    stdin_open: true
+    tty: true
+    entrypoint: tail -f /dev/null
