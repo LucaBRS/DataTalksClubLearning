@@ -49,3 +49,5 @@ dist/
 *.out
 *.err
 *.pid
+
+logs/queries
