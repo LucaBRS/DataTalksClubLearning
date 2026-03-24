@@ -4,4 +4,6 @@ WORKDIR /workspace
 
 COPY pyproject.toml .
 
+# in order to prevent permission issue we force uc sync during the docker build,
+# do the folder like .venv or others can be created
 RUN /home/bruin/.bruin/uv sync

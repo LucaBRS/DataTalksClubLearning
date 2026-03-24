@@ -23,9 +23,9 @@ import pandas as pd
 def materialize(**kwargs):
     df = eurostat.get_data_df("tps00206")
 
-    # df = df.rename(columns={
-    #     "geo\\TIME_PERIOD": "country",
-    # })
+    df = df.rename(columns={
+        "geo\\TIME_PERIOD": "country",
+    })
 
     # df = df.melt(
     #     id_vars=["freq", "unit", "country"],
@@ -39,4 +39,3 @@ def materialize(**kwargs):
 
     return df
 
-print(materialize().head())

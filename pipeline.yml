@@ -1,4 +1,5 @@
 name: eurostat_pipeline
 schedule: "@daily"
+concurrency: 1
 default_connections:
   duckdb: "local_duckdb"
