@@ -58,3 +58,7 @@ data/
 *.pid
 *.parquet
 *.csv
+
+logs/queries
+logs/runs
+logs/*.log
