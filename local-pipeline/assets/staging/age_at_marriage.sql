@@ -1,9 +1,9 @@
 /* @bruin
 name: staging.age_at_marriage
 type: duckdb.sql
-connection: local_duckdb
+connection: main_db
 depends:
-  - ingestion.age_at_marriage
+  - load.age_at_marriage
 materialization:
   type: table
 @bruin */
@@ -13,7 +13,7 @@ SELECT
     age_at_marriage
 FROM
     (
-        UNPIVOT ingestion.age_at_marriage ON COLUMNS(* EXCLUDE (freq, indic_de, country)) INTO NAME year VALUE age_at_marriage
+        UNPIVOT load.age_at_marriage ON COLUMNS(* EXCLUDE (freq, indic_de, country)) INTO NAME year VALUE age_at_marriage
     )
 WHERE
     age_at_marriage IS NOT NULL

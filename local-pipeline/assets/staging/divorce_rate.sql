@@ -1,9 +1,9 @@
 /* @bruin
 name: staging.divorce_rate
 type: duckdb.sql
-connection: local_duckdb
+connection: main_db
 depends:
-  - ingestion.divorce_rate
+  - load.divorce_rate
 materialization:
   type: table
 @bruin */
@@ -13,7 +13,7 @@ SELECT
     divorce_rate
 FROM
     (
-        UNPIVOT ingestion.divorce_rate ON COLUMNS(* EXCLUDE (freq, indic_de, country)) INTO NAME year VALUE divorce_rate
+        UNPIVOT load.divorce_rate ON COLUMNS(* EXCLUDE (freq, indic_de, country)) INTO NAME year VALUE divorce_rate
     )
 WHERE
     divorce_rate IS NOT NULL

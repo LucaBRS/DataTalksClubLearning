@@ -1,6 +1,8 @@
 services:
 
   bruin:
+    env_file:
+      - .env
     build:
       context: .
       dockerfile: Dockerfile.bruin
@@ -13,8 +15,8 @@ services:
       - ./.gitignore:/workspace/.gitignore
       - ./pyproject.toml:/workspace/pyproject.toml
       - ./.bruin.yml:/workspace/.bruin.yml
-      - ./pipeline.yml:/workspace/pipeline.yml
-      - ./assets:/workspace/assets
+      - ./local-pipeline:/workspace/local-pipeline
+      - ./gcp-pipeline:/workspace/gcp-pipeline
       - ./data:/workspace/data
     environment:
       - BRUIN_ENV=local
@@ -25,6 +27,8 @@ services:
 
 
   terraform:
+    env_file:
+      - .env
     image: hashicorp/terraform:latest
     container_name: terraform
     working_dir: /workspace

@@ -8,9 +8,8 @@ terraform {
 }
 
 provider "google" {
-  credentials = file("./credentials/gcp-credentials.json")
-  project     = var.project_id
-  region      = var.region
+  project = var.project_id
+  region  = var.region
 }
 
 resource "google_storage_bucket" "data_lake" {
