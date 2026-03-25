@@ -6,6 +6,7 @@ depends:
   - ingestion.marriage_rate
 materialization:
   type: table
+
 @bruin"""
 
 import sys, os

@@ -9,9 +9,21 @@ depends:
   - staging.income_quintile
 materialization:
   type: table
+  strategy: merge
   partition_by: year_date
   cluster_by:
     - country
+columns:
+  - name: country
+    primary_key: true
+  - name: year
+    primary_key: true
+  - name: year_date
+  - name: marriage_rate
+  - name: divorce_rate
+  - name: age_at_marriage
+  - name: income_quintile_f
+  - name: income_quintile_m
 @bruin */
 
 SELECT

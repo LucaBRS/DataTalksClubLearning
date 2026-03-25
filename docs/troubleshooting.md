@@ -110,3 +110,11 @@ WHERE sex IN ('F', 'M')
 GROUP BY country, year
 ```
 `AVG` is preferred over `MAX` for semantic accuracy — even though the result is identical (only one non-null value per group), `AVG` better communicates the intent of the aggregation.
+
+
+-bigquery do not manage column dinamically, switched to python
+
+- in order to solve env problem, created .env leter also to implement ci/cd
+
+
+- primary key creation in order to assure merging dataset with no replications

@@ -6,6 +6,7 @@ depends:
   - ingestion.income_quintile
 materialization:
   type: table
+
 @bruin"""
 
 import sys, os

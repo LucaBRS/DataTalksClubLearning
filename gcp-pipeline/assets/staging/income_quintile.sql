@@ -6,6 +6,14 @@ depends:
   - load.income_quintile
 materialization:
   type: table
+  strategy: merge
+columns:
+  - name: country
+    primary_key: true
+  - name: year
+    primary_key: true
+  - name: income_quintile_f
+  - name: income_quintile_m
 @bruin */
 
 SELECT
