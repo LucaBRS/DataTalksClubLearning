@@ -30,7 +30,6 @@ services:
     working_dir: /workspace
     volumes:
       - ./terraform:/workspace
-      - ./credentials:/workspace/credentials
     stdin_open: true
     tty: true
     entrypoint: tail -f /dev/null

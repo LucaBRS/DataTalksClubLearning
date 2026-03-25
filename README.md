@@ -1,3 +1,3 @@
 Learning from https://github.com/DataTalksClub
 
-Check brach to see the different step
+Check branch to see the different steps
