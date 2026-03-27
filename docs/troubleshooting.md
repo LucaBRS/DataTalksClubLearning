@@ -109,12 +109,87 @@ WHERE sex IN ('F', 'M')
   AND income_quintile IS NOT NULL
 GROUP BY country, year
 ```
-`AVG` is preferred over `MAX` for semantic accuracy — even though the result is identical (only one non-null value per group), `AVG` better communicates the intent of the aggregation.
+`AVG` is preferred over `MAX` for semantic accuracy — even though the result is identical (only one non-null value per group), `AVG` better communicates the intent.
 
+---
 
--bigquery do not manage column dinamically, switched to python
+## 14. BigQuery Does Not Support Dynamic UNPIVOT
+**Problem:** BigQuery does not support `UNPIVOT COLUMNS(*)` or dynamic column selection like DuckDB. Trying to pivot year columns in SQL fails.
+**Solution:** Move the wide→long transformation to the Python load asset using `pandas.melt()` before the data reaches BigQuery:
+```python
+year_cols = [c for c in df.columns if c not in id_cols]
+df = df.melt(id_vars=id_cols, value_vars=year_cols, var_name='year', value_name='value')
+```
 
-- in order to solve env problem, created .env leter also to implement ci/cd
+---
 
+## 15. `strategy: merge` Fails — Table Does Not Exist
+**Problem:** `Not found: Table staging.xxx` — Bruin's `strategy: merge` uses BigQuery's native `MERGE INTO`, which requires the target table to already exist.
+**Solution:** Define all BigQuery tables in Terraform (`tables.tf`) and run `terraform apply` before the first pipeline run. This pre-creates all staging and analytics tables with the correct schema.
 
-- primary key creation in order to assure merging dataset with no replications
+---
+
+## 16. dlt 409 Conflict on Parallel Load Assets
+**Problem:** When multiple Python load assets run in parallel, the second asset to start raises a `409 Conflict` error on `create_dataset()` because the dataset was already created by the first.
+**Solution:** Python load assets use `type: table` (no explicit `strategy`), which avoids the dlt merge path. SQL staging assets use `strategy: merge` instead — they do not have this issue since they use BigQuery's native MERGE.
+
+---
+
+## 17. BigQuery Schema Change Not Applied by `terraform apply`
+**Problem:** After changing a column type in `tables.tf` (e.g. `INTEGER` → `FLOAT`), running `terraform apply` does not update the existing table — BigQuery rejects in-place schema changes for incompatible type conversions.
+**Solution:** Force Terraform to destroy and recreate just that table:
+```bash
+terraform apply -replace=google_bigquery_table.staging_accidents -auto-approve
+```
+Or delete the table manually first:
+```bash
+bq rm -f staging.accidents
+terraform apply -target=google_bigquery_table.staging_accidents -auto-approve
+```
+
+---
+
+## 18. Staging Table Empty After Pipeline Run
+**Problem:** A staging table exists but has 0 rows after a successful pipeline run. No error is raised.
+**Cause:** The load asset filters on column values (e.g. `nace_r2 == 'TOTAL'`, `age == 'Y15-74'`) that do not exist in the actual dataset — all rows are filtered out silently.
+**Solution:** Before finalising filter values, inspect the raw Parquet file in a notebook:
+```python
+import pandas as pd
+df = pd.read_parquet("data/datalake/hours_worked.parquet")
+print(df['nace_r2'].unique())
+print(df['age'].unique())
+print(df['wstatus'].unique())
+```
+Then update the filters in the load asset accordingly.
+
+---
+
+## 19. `there's no secret with the name 'main_db'`
+**Problem:** Local pipeline fails with `there's no secret with the name 'main_db'` when connecting to DuckDB.
+**Cause:** The `.bruin.yml` connection name does not match the `connection:` field declared in the asset's `@bruin` block.
+**Solution:** Ensure the connection name in `.bruin.yml` matches exactly what the asset declares:
+```yaml
+# .bruin.yml
+connections:
+  duckdb:
+    - name: "main_db"   # must match the asset
+```
+```python
+# asset @bruin block
+connection: main_db
+```
+
+---
+
+## 20. Primary Keys Required for Merge Idempotency
+**Problem:** Re-running the pipeline inserts duplicate rows instead of updating existing ones.
+**Solution:** All `strategy: merge` assets must declare a `primary_key` in the `@bruin` materialization block:
+```yaml
+materialization:
+  type: table
+  strategy: merge
+  primary_key:
+    - country
+    - year
+```
+This tells Bruin to generate a `MERGE INTO ... ON (country, year)` statement, updating matching rows and inserting new ones.
