@@ -10,8 +10,3 @@ variable "region" {
   default     = "EU"
 }
 
-variable "bq_dataset" {
-  description = "BigQuery Dataset name"
-  type        = string
-  default     = "eurostat_data"
-}

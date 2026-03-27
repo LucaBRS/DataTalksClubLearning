@@ -7,13 +7,5 @@ depends:
 materialization:
   type: table
 @bruin */
-SELECT
-    country,
-    CAST(REPLACE(year, '_', '') AS INTEGER) AS year,
-    divorce_rate
-FROM
-    (
-        UNPIVOT load.divorce_rate ON COLUMNS(* EXCLUDE (freq, indic_de, country)) INTO NAME year VALUE divorce_rate
-    )
-WHERE
-    divorce_rate IS NOT NULL
+SELECT country, year, divorce_rate
+FROM load.divorce_rate

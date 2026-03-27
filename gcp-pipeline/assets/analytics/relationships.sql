@@ -21,18 +21,21 @@ columns:
   - name: year_date
   - name: marriage_rate
   - name: divorce_rate
-  - name: age_at_marriage
+  - name: age_at_marriage_f
+  - name: age_at_marriage_m
   - name: income_quintile_f
   - name: income_quintile_m
 @bruin */
 
 SELECT
+    DATE(m.year, 12, 31) AS year_date,
+
     m.country,
     m.year,
-    DATE(m.year, 12, 31) AS year_date,
     m.marriage_rate,
     d.divorce_rate,
-    a.age_at_marriage,
+    a.age_at_marriage_f,
+    a.age_at_marriage_m,
     iq.income_quintile_f,
     iq.income_quintile_m
 FROM staging.marriage_rate m
@@ -42,3 +45,5 @@ LEFT JOIN staging.age_at_marriage a
     ON m.country = a.country AND m.year = a.year
 LEFT JOIN staging.income_quintile iq
     ON m.country = iq.country AND m.year = iq.year
+
+

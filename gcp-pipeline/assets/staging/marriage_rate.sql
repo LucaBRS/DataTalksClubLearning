@@ -15,5 +15,5 @@ columns:
   - name: marriage_rate
 @bruin */
 
-SELECT country, year, marriage_rate
-FROM load.marriage_rate
+SELECT m.country, m.year, m.marriage_rate
+FROM load.marriage_rate as m

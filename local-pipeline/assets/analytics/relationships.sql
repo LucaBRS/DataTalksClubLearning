@@ -16,7 +16,8 @@ SELECT
     m.year,
     m.marriage_rate,
     d.divorce_rate,
-    a.age_at_marriage,
+    a.age_at_marriage_f,
+    a.age_at_marriage_m,
     iq.income_quintile_f,
     iq.income_quintile_m
 FROM staging.marriage_rate m

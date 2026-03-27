@@ -8,12 +8,10 @@ materialization:
   type: table
 @bruin */
 SELECT
-    country,
-    CAST(REPLACE(year, '_', '') AS INTEGER) AS year,
-    age_at_marriage
-FROM
-    (
-        UNPIVOT load.age_at_marriage ON COLUMNS(* EXCLUDE (freq, indic_de, country)) INTO NAME year VALUE age_at_marriage
-    )
-WHERE
-    age_at_marriage IS NOT NULL
+country,
+year,
+    AVG(CASE WHEN indic_de = 'FAGEMAR1' THEN age_at_marriage END) AS age_at_marriage_f,
+    AVG(CASE WHEN indic_de = 'MAGEMAR1' THEN age_at_marriage END) AS age_at_marriage_m
+FROM load.age_at_marriage
+GROUP BY country, year
+ORDER BY country, year

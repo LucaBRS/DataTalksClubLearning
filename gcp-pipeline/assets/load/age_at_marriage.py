@@ -6,7 +6,6 @@ depends:
   - ingestion.age_at_marriage
 materialization:
   type: table
-
 @bruin"""
 
 import sys, os
@@ -24,4 +23,4 @@ def materialize(**kwargs):
     df = df.melt(id_vars=id_cols, value_vars=year_cols, var_name='year', value_name='age_at_marriage')
     df = df.dropna(subset=['age_at_marriage'])
     df['year'] = df['year'].str.replace('_', '', regex=False).astype(int)
-    return df[['country', 'year', 'age_at_marriage']]
+    return df[['indic_de', 'country', 'year', 'age_at_marriage']].reset_index(drop=True)

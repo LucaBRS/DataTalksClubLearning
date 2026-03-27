@@ -3,7 +3,11 @@ output "bucket_name" {
   value       = google_storage_bucket.data_lake.name
 }
 
-output "bigquery_dataset" {
-  description = "BigQuery dataset ID"
-  value       = google_bigquery_dataset.dataset.dataset_id
+output "bigquery_datasets" {
+  description = "BigQuery dataset IDs"
+  value = [
+    google_bigquery_dataset.load.dataset_id,
+    google_bigquery_dataset.staging.dataset_id,
+    google_bigquery_dataset.analytics.dataset_id,
+  ]
 }

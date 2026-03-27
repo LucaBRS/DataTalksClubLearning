@@ -10,6 +10,20 @@ materialization:
 
 import pandas as pd
 
+DATA_PATH = "/workspace/data/datalake"
+
 
 def materialize(**kwargs):
-    return pd.read_parquet("/workspace/data/datalake/age_at_marriage.parquet")
+    df = pd.read_parquet(f"{DATA_PATH}/age_at_marriage.parquet")
+    exclude = ["freq", "indic_de", "country"]
+    id_cols = [c for c in df.columns if c in exclude]
+    year_cols = [c for c in df.columns if c not in id_cols]
+    df = df.melt(
+        id_vars=id_cols,
+        value_vars=year_cols,
+        var_name="year",
+        value_name="age_at_marriage",
+    )
+    df = df.dropna(subset=["age_at_marriage"])
+    df["year"] = df["year"].str.replace("_", "", regex=False).astype(int)
+    return df[["indic_de", "country", "year", "age_at_marriage"]].reset_index(drop=True)
