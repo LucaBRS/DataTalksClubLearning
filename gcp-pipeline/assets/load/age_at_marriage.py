@@ -12,11 +12,12 @@ import sys, os
 sys.path.insert(0, os.path.dirname(__file__))
 
 import pandas as pd
-from utils import GCS_BUCKET, gcs_storage_options
+from utils import GCS_BUCKET, gcs_storage_options, validate_df
 
 
 def materialize(**kwargs):
     df = pd.read_parquet(f"{GCS_BUCKET}/age_at_marriage.parquet", storage_options=gcs_storage_options())
+    validate_df(df, "age_at_marriage")
     exclude = ['freq', 'indic_de', 'country']
     id_cols = [c for c in df.columns if c in exclude]
     year_cols = [c for c in df.columns if c not in id_cols]

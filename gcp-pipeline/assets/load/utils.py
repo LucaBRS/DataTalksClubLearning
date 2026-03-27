@@ -9,6 +9,11 @@ GCS_BUCKET = os.environ["GCS_BUCKET"]
 GCP_PROJECT_ID = os.environ["GCP_PROJECT_ID"]
 
 
+def validate_df(df: pd.DataFrame, name: str) -> None:
+    if df is None or df.empty:
+        raise ValueError(f"DataFrame for '{name}' is empty or None — check ingestion or filter values.")
+
+
 def gcs_storage_options() -> dict:
     return {"token": json.loads(os.environ["GCP_CREDENTIALS"])}
 

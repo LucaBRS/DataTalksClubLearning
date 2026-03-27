@@ -8,13 +8,17 @@ materialization:
   type: table
 @bruin"""
 
+import sys, os
+sys.path.insert(0, os.path.dirname(__file__))
 import pandas as pd
+from utils import validate_df
 
 DATA_PATH = "/workspace/data/datalake"
 
 
 def materialize(**kwargs):
     df = pd.read_parquet(f"{DATA_PATH}/age_at_marriage.parquet")
+    validate_df(df, "age_at_marriage")
     exclude = ["freq", "indic_de", "country"]
     id_cols = [c for c in df.columns if c in exclude]
     year_cols = [c for c in df.columns if c not in id_cols]
