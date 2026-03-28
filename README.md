@@ -147,9 +147,11 @@ Two final tables, both partitioned by `year_date` (DATE) and clustered by `count
 
 ### Prerequisites
 
-- Docker + Docker Compose
+- Docker + Docker Compose installed and **running**
 - A `.env` file (copy from `.env.example`)
 - A `.bruin.yml` file (copy from `.bruin.yml.example`)
+
+> Both the local and GCP pipelines run inside Docker containers — make sure Docker is running before any `docker compose` or `docker exec` command.
 
 ---
 
@@ -205,7 +207,19 @@ cp .env.example .env
 
 See `.env.example` for the required variables (`GOOGLE_CREDENTIALS`, `GCP_PROJECT_ID`, `GCS_BUCKET`).
 
-**2. Apply Terraform** (creates GCS bucket + BigQuery datasets + tables):
+**2. Update `terraform/variables.tf`** with your GCP project details:
+
+```hcl
+variable "project_id" {
+  default = "your-gcp-project-id"   # ← change this
+}
+
+variable "region" {
+  default = "EU"                     # ← change if needed
+}
+```
+
+**3. Apply Terraform** (creates GCS bucket + BigQuery datasets + tables):
 
 ```bash
 docker exec -it terraform sh
@@ -214,7 +228,7 @@ terraform apply -auto-approve
 exit
 ```
 
-**3. Run the GCP pipeline**
+**4. Run the GCP pipeline**
 
 ```bash
 docker exec -it bruin-pipeline bruin run gcp-pipeline
