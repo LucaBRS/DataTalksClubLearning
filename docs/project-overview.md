@@ -7,19 +7,31 @@ Built as capstone project for the [DataTalksClub Data Engineering Zoomcamp](http
 
 ---
 
+## Why These Datasets?
+
+The choice of topic was intentional. Comparing men and women sits in territory that can feel controversial — but that's precisely the point. Data has a unique power: it removes judgment from the equation. There are no opinions here, no agenda. Just numbers collected consistently across European countries over two decades.
+
+And what do those numbers tell us? That the story of gender difference is also, increasingly, a story of convergence. The gender pay gap is narrowing. The age at which men and women marry is growing closer. Employment rates between sexes are moving toward balance. The data doesn't declare a winner — it shows a direction. And that direction, across Europe, is toward equality.
+
+The marriage and divorce data adds another layer to this story. At first glance, a slight decline in marriage rates might seem like a negative signal — fewer people choosing to commit. But look closer: the average age at first marriage has been rising steadily across Europe, for both men and women. People aren't avoiding marriage — they're approaching it more deliberately, later in life, likely after establishing careers and financial independence. This is especially true for women, whose age at first marriage has grown faster than men's, narrowing that gap too.
+
+And divorce? The rate has remained remarkably stable — even as marriages declined during COVID-19, the divorce-to-marriage ratio eventually returned to its long-term trend. The institution isn't collapsing. It's evolving, along with the people in it.
+
+This project was built with that positive lens in mind. The goal was never to highlight division, but to measure progress. Because once you can measure something, you can understand it — and understanding is the first step forward.
+
+---
+
 ## Problem Statement
 
-Do economic and gender factors influence how and when people form relationships?
+Two questions drive this project:
 
-This project explores two angles:
-
-**Relationships & Inequality**
-- Do countries with higher income inequality have higher divorce rates?
-- Is the gap between male and female age at marriage narrowing over time?
+**Relationships & Gender**
+- Is the gender pay gap correlated with marriage and divorce trends across European countries?
+- Is the gap between male and female age at first marriage narrowing over time?
 
 **Gender Gap at Work**
 - How do hours worked, accident rates, and employment levels differ between men and women?
-- Is the gender pay gap correlated with other labour market indicators?
+- Are these labour market gaps moving in the same direction as the gender pay gap?
 
 ---
 
@@ -232,6 +244,20 @@ docker exec -it bruin-pipeline bruin run gcp-pipeline
 ├── docker-compose.yml     # Bruin + Terraform containers
 └── .bruin.yml             # Bruin connection config (not committed)
 ```
+
+---
+
+## Dashboard
+
+Built with Power BI, connected directly to BigQuery (`analytics.relationships` and `analytics.gender_gap`).
+
+**Gender Gap labour market indicators**
+
+![Gender Gap](img/gender-gap.png)
+
+**Marriage & Divorce trends across Europe**
+
+![Marriage and Divorce](img/marriage-divorce.png)
 
 ---
 
