@@ -23,6 +23,9 @@ jobs:
       - name: Create .bruin.yml
         run: echo "${{ secrets.BRUIN_YML }}" > .bruin.yml
 
+      - name: Fix file permissions
+        run: chmod -R a+rX .git && chmod a+r .gitignore
+
       - name: Start containers
         run: docker compose up -d --build
 
