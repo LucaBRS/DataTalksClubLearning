@@ -226,7 +226,7 @@ with duckdb.connect("data/duckdb.db") as conn:
 cp .env.example .env
 ```
 
-See `.env.example` for the required variables (`GOOGLE_CREDENTIALS`, `GCP_PROJECT_ID`, `GCS_BUCKET`).
+See `.env.example` for the required variables (`GOOGLE_CREDENTIALS`, `GCP_PROJECT_ID`, `GCS_BUCKET`, `TF_VAR_project_id`, `TF_VAR_bucket`, `TF_VAR_region`).
 
 **2. Start the containers**
 
