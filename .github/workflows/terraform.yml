@@ -19,7 +19,7 @@ jobs:
           echo "GCS_BUCKET=${{ vars.GCS_BUCKET }}" >> .env
           echo "GOOGLE_CREDENTIALS=$GOOGLE_CREDENTIALS" >> .env
           echo "TF_VAR_project_id=${{ vars.GCP_PROJECT_ID }}" >> .env
-          echo "TF_VAR_region=${{ vars.TF_VAR_region}}" >> .env
+          echo "TF_VAR_region=${{ vars.TF_VAR_region }}" >> .env
           echo "TF_VAR_bucket=${{ vars.TF_VAR_bucket }}" >> .env
 
       - name: Debug .env

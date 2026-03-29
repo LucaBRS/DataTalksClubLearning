@@ -66,7 +66,7 @@ Both share the same configuration:
 ## Infrastructure (Terraform)
 
 Terraform manages:
-- **GCS bucket**: `<project_id>-data-lake` — stores raw Parquet files, with a 30-day lifecycle rule
+- **GCS bucket**: name set via `TF_VAR_bucket` — stores raw Parquet files, with a 30-day lifecycle rule
 - **BigQuery datasets**: `load`, `staging`, `analytics`
 - **BigQuery tables**: all staging and analytics tables with explicit schemas, defined in `tables.tf`
 
@@ -91,7 +91,7 @@ Sequence:
 6. `bruin run --environment cloud gcp-pipeline` — runs the full pipeline
 7. `docker compose down` — always tears down, even on failure
 
-**Secrets handling**: `GOOGLE_CREDENTIALS` must be stored as a **minified single-line JSON** in the GitHub Secret. Multi-line JSON breaks Docker's `env_file` parser (reads only the first line). Both `GOOGLE_CREDENTIALS` and `BRUIN_YML` are passed via `env:` in the workflow step (not interpolated directly into the shell command) to prevent bash from expanding `${...}` variables inside the secret values.
+**Secrets handling**: Both `GOOGLE_CREDENTIALS` and `BRUIN_YML` are passed via `env:` in the workflow step — not interpolated directly into the shell command. This prevents bash from stripping JSON quotes and expanding `${...}` variables inside the secret values. The credentials JSON can be stored exactly as downloaded from GCP, no minification needed.
 
 ### `terraform.yml` — Manual infrastructure apply
 
@@ -103,10 +103,12 @@ Sequence: checkout → create `.env` → `docker compose up -d terraform` → `t
 
 | Name | Type | Description |
 |---|---|---|
-| `GOOGLE_CREDENTIALS` | Secret | GCP service account JSON (minified, single line) |
+| `GOOGLE_CREDENTIALS` | Secret | GCP service account JSON (content of the `.json` file) |
 | `BRUIN_YML` | Secret | Full content of `.bruin.yml` |
 | `GCP_PROJECT_ID` | Variable | GCP project ID |
 | `GCS_BUCKET` | Variable | GCS bucket path (e.g. `gs://my-bucket`) |
+| `TF_VAR_bucket` | Variable | GCS bucket name without `gs://` prefix (e.g. `my-bucket`) |
+| `TF_VAR_region` | Variable | GCP region for Terraform (e.g. `EU`) |
 
 ---
 

@@ -285,8 +285,8 @@ Configure these in **GitHub → Settings → Secrets and variables → Actions**
 | `BRUIN_YML` | Secret | Full content of your `.bruin.yml` |
 | `GCP_PROJECT_ID` | Variable | Your GCP project ID |
 | `GCS_BUCKET` | Variable | Your GCS bucket path (e.g. `gs://my-bucket`) |
-| `TF_VAR_region` | Variable | GCS bucket name without `gs://` prefix (e.g. `my-bucket`) |
-| `TF_VAR_bucket` | Variable | GCP region for Terraform (e.g. `EU`) |
+| `TF_VAR_bucket` | Variable | GCS bucket name without `gs://` prefix (e.g. `my-bucket`) |
+| `TF_VAR_region` | Variable | GCP region for Terraform (e.g. `EU`) |
 
 
 ---
