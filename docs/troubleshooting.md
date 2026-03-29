@@ -193,3 +193,54 @@ materialization:
     - year
 ```
 This tells Bruin to generate a `MERGE INTO ... ON (country, year)` statement, updating matching rows and inserting new ones.
+
+---
+
+## 21. GitHub Actions: Docker Volume Permission Denied on `.gitignore`
+**Problem:** `Failed to load the config file at '/workspace/.bruin.yml': open /workspace/.gitignore: permission denied` — Bruin reads `.gitignore` as part of config loading, but the Docker container (running as the `bruin` user) cannot read the file mounted from the Actions runner.
+**Cause:** `actions/checkout` creates files owned by the runner user. When Docker mounts `.gitignore` and `.git` as volumes, the container's non-root user does not have read permission on them.
+**Solution:** Add a permission fix step before `docker compose up`:
+```yaml
+- name: Fix file permissions
+  run: sudo chmod -R 777 .git .gitignore
+```
+`sudo` is available on GitHub Actions runners and bypasses ownership restrictions. Safe to use since the runner is an ephemeral, isolated VM.
+
+---
+
+## 22. `GOOGLE_CREDENTIALS` Truncated or Malformed in Docker Container
+**Problem:** `ValueError: Could not deserialize key data. ASN.1 parsing error: short data` — the RSA private key inside the credentials is invalid or truncated.
+**Cause:** The service account JSON stored in the GitHub Secret has multiple lines (JSON formatting with real newlines). When written to `.env` with `echo`, Docker's `env_file` parser reads only the first line — the rest of the JSON is lost.
+**Solution:** The `GOOGLE_CREDENTIALS` secret must be a **single-line minified JSON**. Generate it with:
+```bash
+python -c "import json; print(json.dumps(json.load(open('service-account.json'))))"
+```
+The `\n` escape sequences inside the `private_key` field are preserved as literal backslash-n in the minified JSON — `json.loads()` correctly converts them to real newlines when parsing.
+
+---
+
+## 23. Shell Strips Quotes from JSON Secrets (`echo "...${{ secrets.X }}"`)
+**Problem:** Debug output shows `GOOGLE_CREDENTIALS starts with: {type: service_account` — the JSON keys have no quotes.
+**Cause:** `echo "GOOGLE_CREDENTIALS=${{ secrets.GOOGLE_CREDENTIALS }}"` — GitHub Actions expands `${{ secrets.X }}` first, injecting the raw JSON into the shell command. The shell then interprets the `"` inside the JSON as closing the outer double-quoted string, stripping them.
+**Solution:** Pass the secret as an environment variable via `env:` and reference it as a regular shell variable:
+```yaml
+- name: Create .env
+  env:
+    GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
+  run: echo "GOOGLE_CREDENTIALS=$GOOGLE_CREDENTIALS" >> .env
+```
+Shell variable expansion (`$GOOGLE_CREDENTIALS`) does not re-parse the value, so quotes are preserved.
+
+---
+
+## 24. `${VAR}` References in `BRUIN_YML` Secret Expanded to Empty by Bash
+**Problem:** `.bruin.yml` inside the container has `project_id:` and `service_account_json:` empty after the workflow creates the file.
+**Cause:** `echo "${{ secrets.BRUIN_YML }}" > .bruin.yml` — GitHub expands the secret content inline, then bash sees `${GCP_PROJECT_ID}` and `${GOOGLE_CREDENTIALS}` in the resulting string and expands them as shell variables (which are not set on the runner → empty string).
+**Solution:** Same `env:` pattern — pass the secret as an environment variable so bash does not re-expand its contents:
+```yaml
+- name: Create .bruin.yml
+  env:
+    BRUIN_YML: ${{ secrets.BRUIN_YML }}
+  run: echo "$BRUIN_YML" > .bruin.yml
+```
+The `${GCP_PROJECT_ID}` references inside the file are preserved as literal text and resolved by Bruin at runtime from the container's environment variables.
