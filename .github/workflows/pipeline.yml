@@ -43,6 +43,8 @@ jobs:
           echo "GCP_PROJECT_ID=$(docker exec bruin-pipeline printenv GCP_PROJECT_ID)"
           echo "GOOGLE_CREDENTIALS length=$(docker exec bruin-pipeline printenv GOOGLE_CREDENTIALS | wc -c)"
           echo "GOOGLE_CREDENTIALS starts with: $(docker exec bruin-pipeline printenv GOOGLE_CREDENTIALS | cut -c1-50)"
+          echo "--- .bruin.yml inside container ---"
+          docker exec bruin-pipeline cat /workspace/.bruin.yml
 
       - name: Run pipeline
         run: docker exec bruin-pipeline bruin run --environment cloud gcp-pipeline
