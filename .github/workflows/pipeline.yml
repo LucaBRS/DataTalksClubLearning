@@ -15,10 +15,12 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Create .env
+        env:
+          GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
         run: |
           echo "GCP_PROJECT_ID=${{ vars.GCP_PROJECT_ID }}" >> .env
           echo "GCS_BUCKET=${{ vars.GCS_BUCKET }}" >> .env
-          echo "GOOGLE_CREDENTIALS=${{ secrets.GOOGLE_CREDENTIALS }}" >> .env
+          echo "GOOGLE_CREDENTIALS=$GOOGLE_CREDENTIALS" >> .env
 
       - name: Create .bruin.yml
         run: echo "${{ secrets.BRUIN_YML }}" > .bruin.yml
