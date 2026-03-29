@@ -1,0 +1,31 @@
+name: Terraform Apply
+
+on:
+  workflow_dispatch:        # manual trigger only
+
+jobs:
+  terraform:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Create .env
+        run: |
+          echo "GCP_PROJECT_ID=${{ vars.GCP_PROJECT_ID }}" >> .env
+          echo "GCS_BUCKET=${{ vars.GCS_BUCKET }}" >> .env
+          echo "GOOGLE_CREDENTIALS=${{ secrets.GOOGLE_CREDENTIALS }}" >> .env
+
+      - name: Start Terraform container
+        run: docker compose up -d terraform
+
+      - name: Terraform init
+        run: docker exec terraform terraform init
+
+      - name: Terraform apply
+        run: docker exec terraform terraform apply -auto-approve
+
+      - name: Tear down
+        if: always()
+        run: docker compose down

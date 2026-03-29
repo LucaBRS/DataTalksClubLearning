@@ -1,0 +1,34 @@
+name: Run GCP Pipeline
+
+on:
+  schedule:
+    - cron: '0 8 1 1 *'   # 1 January
+    - cron: '0 8 1 7 *'   # 1 July
+  workflow_dispatch:        # manual trigger from Actions tab
+
+jobs:
+  run-pipeline:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Create .env
+        run: |
+          echo "GCP_PROJECT_ID=${{ vars.GCP_PROJECT_ID }}" >> .env
+          echo "GCS_BUCKET=${{ vars.GCS_BUCKET }}" >> .env
+          echo "GOOGLE_CREDENTIALS=${{ secrets.GOOGLE_CREDENTIALS }}" >> .env
+
+      - name: Create .bruin.yml
+        run: echo "${{ secrets.BRUIN_YML }}" > .bruin.yml
+
+      - name: Start containers
+        run: docker compose up -d --build
+
+      - name: Run pipeline
+        run: docker exec bruin-pipeline bruin run gcp-pipeline
+
+      - name: Tear down
+        if: always()
+        run: docker compose down
