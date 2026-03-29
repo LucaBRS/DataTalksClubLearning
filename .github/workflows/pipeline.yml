@@ -26,6 +26,13 @@ jobs:
       - name: Fix file permissions
         run: sudo chmod -R 777 .git .gitignore
 
+      - name: Debug .env
+        run: |
+          echo "GCP_PROJECT_ID=$(grep GCP_PROJECT_ID .env | cut -d= -f2)"
+          echo "GCS_BUCKET=$(grep GCS_BUCKET .env | cut -d= -f2)"
+          echo "GOOGLE_CREDENTIALS length=$(grep GOOGLE_CREDENTIALS .env | wc -c)"
+          echo "GOOGLE_CREDENTIALS starts with: $(grep GOOGLE_CREDENTIALS .env | cut -c1-50)"
+
       - name: Start containers
         run: docker compose up -d --build
 
