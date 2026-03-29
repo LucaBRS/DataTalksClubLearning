@@ -7,6 +7,23 @@ Built as capstone project for the [DataTalksClub Data Engineering Zoomcamp](http
 
 ---
 
+## Table of Contents
+
+- [Why These Datasets?](#why-these-datasets)
+- [Problem Statement](#problem-statement)
+- [Architecture](#architecture)
+- [Tech Stack](#tech-stack)
+- [Datasets](#datasets)
+- [Pipeline Layers](#pipeline-layers)
+- [How to Run](#how-to-run)
+- [CI/CD](#cicd)
+- [Project Structure](#project-structure)
+- [Dashboard](#dashboard)
+- [Bruin AI Data Analyst](#bruin-ai-data-analyst)
+- [Notes](#notes)
+
+---
+
 ## Why These Datasets?
 
 The choice of topic was intentional. Comparing men and women sits in territory that can feel controversial — but that's precisely the point. Data has a unique power: it removes judgment from the equation. There are no opinions here, no agenda. Just numbers collected consistently across European countries over two decades.
