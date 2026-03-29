@@ -27,7 +27,7 @@ jobs:
         run: docker compose up -d --build
 
       - name: Run pipeline
-        run: docker exec bruin-pipeline bruin run gcp-pipeline
+        run: docker exec bruin-pipeline bruin run --workflow cloud gcp-pipeline
 
       - name: Tear down
         if: always()
