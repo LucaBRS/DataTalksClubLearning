@@ -74,6 +74,42 @@ Terraform is the **single source of truth for table schemas**. `lifecycle { igno
 
 ---
 
+## CI/CD (GitHub Actions)
+
+Two workflows in `.github/workflows/`:
+
+### `pipeline.yml` — Scheduled pipeline
+
+Triggers automatically on **1 January and 1 July** (Eurostat data updates on a ~yearly cadence) plus manual `workflow_dispatch`.
+
+Sequence:
+1. Checkout repo
+2. Create `.env` from GitHub Secrets/Variables
+3. Create `.bruin.yml` from the `BRUIN_YML` secret
+4. `sudo chmod -R 777 .git .gitignore` — fixes Docker volume mount permissions on the Actions runner
+5. `docker compose up -d --build` — starts the Bruin container
+6. `bruin run --environment cloud gcp-pipeline` — runs the full pipeline
+7. `docker compose down` — always tears down, even on failure
+
+**Secrets handling**: `GOOGLE_CREDENTIALS` must be stored as a **minified single-line JSON** in the GitHub Secret. Multi-line JSON breaks Docker's `env_file` parser (reads only the first line). Both `GOOGLE_CREDENTIALS` and `BRUIN_YML` are passed via `env:` in the workflow step (not interpolated directly into the shell command) to prevent bash from expanding `${...}` variables inside the secret values.
+
+### `terraform.yml` — Manual infrastructure apply
+
+Manual-only (`workflow_dispatch`). Used when infrastructure needs to be created or updated — schema changes, new tables, first-time setup.
+
+Sequence: checkout → create `.env` → `docker compose up -d terraform` → `terraform init` → `terraform apply -auto-approve` → tear down.
+
+### Required GitHub configuration
+
+| Name | Type | Description |
+|---|---|---|
+| `GOOGLE_CREDENTIALS` | Secret | GCP service account JSON (minified, single line) |
+| `BRUIN_YML` | Secret | Full content of `.bruin.yml` |
+| `GCP_PROJECT_ID` | Variable | GCP project ID |
+| `GCS_BUCKET` | Variable | GCS bucket path (e.g. `gs://my-bucket`) |
+
+---
+
 ## Known Issues / Design Decisions
 
 - **dlt 409 bug**: dlt does not pass `exists_ok=True` when calling `create_dataset()` on BigQuery. If multiple load assets run in parallel, the second asset to start fails because the dataset was already created by the first. Workaround: `load.*` assets use `type: table` (no explicit strategy), relying on the default full-replace behaviour.

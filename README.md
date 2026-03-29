@@ -76,6 +76,7 @@ Bruin handles orchestration, dependency resolution, and materialization for both
 | Data Lake | GCS (Google Cloud Storage) | Parquet staging before BigQuery load |
 | Infrastructure as Code | Terraform | Reproducible GCP setup |
 | Containerization | Docker + Docker Compose | Consistent environment for Bruin + Terraform |
+| CI/CD | GitHub Actions | Scheduled pipeline runs + manual Terraform trigger |
 | Dashboard | Power BI | Connected directly to BigQuery |
 
 ---
@@ -236,9 +237,55 @@ docker exec -it bruin-pipeline bruin run gcp-pipeline
 
 ---
 
+## CI/CD
+
+Two GitHub Actions workflows handle automated runs:
+
+### Pipeline (`pipeline.yml`)
+
+Runs the full GCP pipeline automatically twice a year (Eurostat data updates on this cadence)
+and can be triggered manually from the Actions tab.
+
+```
+Scheduled: 1 January and 1 July at 08:00 UTC
+Manual:    GitHub Actions → Run workflow
+```
+
+**Steps**: checkout → create `.env` → create `.bruin.yml` → start Docker containers → run pipeline → tear down
+
+### Terraform (`terraform.yml`)
+
+Manual-only trigger — used when infrastructure needs to be created or updated (schema changes, new tables).
+
+```
+Manual: GitHub Actions → Run workflow
+```
+
+### Required Secrets and Variables
+
+Configure these in **GitHub → Settings → Secrets and variables → Actions**:
+
+| Name | Type | Value |
+|---|---|---|
+| `GOOGLE_CREDENTIALS` | Secret | GCP service account JSON (minified, single line) |
+| `BRUIN_YML` | Secret | Full content of your `.bruin.yml` |
+| `GCP_PROJECT_ID` | Variable | Your GCP project ID |
+| `GCS_BUCKET` | Variable | Your GCS bucket path (e.g. `gs://my-bucket`) |
+
+> `GOOGLE_CREDENTIALS` must be a **single-line minified JSON**. Run:
+> ```bash
+> python -c "import json; print(json.dumps(json.load(open('service-account.json'))))"
+> ```
+
+---
+
 ## Project Structure
 
 ```
+├── .github/
+│   └── workflows/
+│       ├── pipeline.yml   # Scheduled + manual GCP pipeline run
+│       └── terraform.yml  # Manual Terraform apply
 ├── gcp-pipeline/
 │   └── assets/
 │       ├── ingestion/     # Python — Eurostat API → GCS Parquet
