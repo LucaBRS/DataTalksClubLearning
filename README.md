@@ -275,6 +275,27 @@ Built with Power BI, connected directly to BigQuery (`analytics.relationships` a
 
 ---
 
+## Bruin AI Data Analyst
+
+Analysis performed using the Bruin AI agent directly on the BigQuery analytics tables:
+
+**Gender Pay Gap trend**
+![Bruin AI — Gender Pay Gap](docs/img/bruin-ai-agent-gender-pay-gap.png)
+
+**Marriage rate drop analysis**
+![Bruin AI — Marriage Drop](docs/img/bruin-ai-agent-marriage-drop.png)
+
+**Age at marriage gap between men and women**
+![Bruin AI — Age Gap](docs/img/bruin-ai-agent-age-gap.png)
+
+**Hours worked delta between men and women**
+![Bruin AI — Hours Gap](docs/img/bruin-ai-agent-hours-gap.png)
+
+**Employment gap between men and women**
+![Bruin AI — Employment Gap](docs/img/bruin-ai-agent-employment-gap.png)
+
+---
+
 ## Notes
 
 - See [docs/strategy.md](docs/strategy.md) for pipeline design decisions and known issues
