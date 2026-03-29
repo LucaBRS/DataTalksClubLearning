@@ -34,6 +34,8 @@ jobs:
           echo "GCS_BUCKET=$(grep GCS_BUCKET .env | cut -d= -f2)"
           echo "GOOGLE_CREDENTIALS length=$(grep GOOGLE_CREDENTIALS .env | wc -c)"
           echo "GOOGLE_CREDENTIALS starts with: $(grep GOOGLE_CREDENTIALS .env | cut -c1-50)"
+      - name: Debug .bruin.yml
+        run: cat .bruin.yml
 
       - name: Start containers
         run: docker compose up -d --build
