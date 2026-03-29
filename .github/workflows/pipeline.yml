@@ -23,7 +23,9 @@ jobs:
           echo "GOOGLE_CREDENTIALS=$GOOGLE_CREDENTIALS" >> .env
 
       - name: Create .bruin.yml
-        run: echo "${{ secrets.BRUIN_YML }}" > .bruin.yml
+        env:
+          BRUIN_YML: ${{ secrets.BRUIN_YML }}
+        run: echo "$BRUIN_YML" > .bruin.yml
 
       - name: Fix file permissions
         run: sudo chmod -R 777 .git .gitignore
