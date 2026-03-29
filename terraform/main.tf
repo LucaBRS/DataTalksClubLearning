@@ -13,7 +13,7 @@ provider "google" {
 }
 
 resource "google_storage_bucket" "data_lake" {
-  name          = "${var.project_id}-data-lake"
+  name          = var.bucket
   location      = var.region
   force_destroy = true
 
@@ -28,16 +28,21 @@ resource "google_storage_bucket" "data_lake" {
 }
 
 resource "google_bigquery_dataset" "load" {
-  dataset_id = "load"
-  location   = var.region
+  dataset_id                 = "load"
+  location                   = var.region
+  delete_contents_on_destroy = true # this is ok oly for development, in production you should remove this line to avoid data loss
 }
 
 resource "google_bigquery_dataset" "staging" {
-  dataset_id = "staging"
-  location   = var.region
+  dataset_id                 = "staging"
+  location                   = var.region
+  delete_contents_on_destroy = true # this is ok oly for development, in production you should remove this line to avoid data loss
 }
 
+
 resource "google_bigquery_dataset" "analytics" {
-  dataset_id = "analytics"
-  location   = var.region
+  dataset_id                 = "analytics"
+  location                   = var.region
+  delete_contents_on_destroy = true # this is ok oly for development, in production you should remove this line to avoid data loss
 }
+

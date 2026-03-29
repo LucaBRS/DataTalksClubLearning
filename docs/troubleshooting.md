@@ -203,13 +203,16 @@ Shell variable expansion (`$GOOGLE_CREDENTIALS`) does not re-parse the value, so
 ## 18. `GOOGLE_CREDENTIALS` Truncated in Docker Container
 **Problem:** `ValueError: Could not deserialize key data. ASN.1 parsing error: short data` — the RSA private key inside the credentials is invalid or truncated.
 
-**Cause:** The service account JSON stored in the GitHub Secret has multiple lines (JSON formatting with real newlines). When written to `.env` with `echo`, Docker's `env_file` parser reads only the first line — the rest of the JSON is lost.
+**Cause:** `echo "GOOGLE_CREDENTIALS=${{ secrets.GOOGLE_CREDENTIALS }}"` inlines the secret directly into the shell command. The shell interprets `"` characters inside the JSON as closing the outer string, corrupting the value before it reaches the `.env` file.
 
-**Solution:** The `GOOGLE_CREDENTIALS` secret must be a **single-line minified JSON**. Generate it with:
-```bash
-python -c "import json; print(json.dumps(json.load(open('service-account.json'))))"
+**Solution:** Pass the secret via `env:` so the shell receives it as a variable — no re-parsing of the content:
+```yaml
+- name: Create .env
+  env:
+    GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
+  run: echo "GOOGLE_CREDENTIALS=$GOOGLE_CREDENTIALS" >> .env
 ```
-The `\n` escape sequences inside the `private_key` field are preserved as literal backslash-n in the minified JSON — `json.loads()` correctly converts them to real newlines when parsing.
+The JSON can be stored in the GitHub Secret exactly as downloaded from GCP — no minification needed.
 
 ---
 

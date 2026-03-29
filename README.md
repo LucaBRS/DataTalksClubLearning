@@ -1,26 +1,10 @@
-# Data Engineering Project
+# Closer Every Year
 
-A batch data pipeline analyzing the relationship between **gender gap indicators**
-and **relationship trends** (marriage, divorce, age at first marriage) across European countries from 2005 to 2024.
+A batch data pipeline tracking **gender gap indicators** and **relationship trends** (marriage, divorce, age at first marriage) across European countries from 2005 to 2024 — not to highlight division, but to measure progress.
+
+The data tells a story of convergence: the pay gap is narrowing, the age at first marriage is growing closer between men and women, employment rates are balancing. Numbers collected consistently over two decades, with no agenda — just direction.
 
 Built as capstone project for the [DataTalksClub Data Engineering Zoomcamp](https://github.com/DataTalksClub/data-engineering-zoomcamp).
-
----
-
-## Table of Contents
-
-- [Why These Datasets?](#why-these-datasets)
-- [Problem Statement](#problem-statement)
-- [Architecture](#architecture)
-- [Tech Stack](#tech-stack)
-- [Datasets](#datasets)
-- [Pipeline Layers](#pipeline-layers)
-- [How to Run](#how-to-run)
-- [CI/CD](#cicd)
-- [Project Structure](#project-structure)
-- [Dashboard](#dashboard)
-- [Bruin AI Data Analyst](#bruin-ai-data-analyst)
-- [Notes](#notes)
 
 ---
 
@@ -35,6 +19,22 @@ The marriage and divorce data adds another layer to this story. At first glance,
 And divorce? The rate has remained remarkably stable — even as marriages declined during COVID-19, the divorce-to-marriage ratio eventually returned to its long-term trend. The institution isn't collapsing. It's evolving, along with the people in it.
 
 This project was built with that positive lens in mind. The goal was never to highlight division, but to measure progress. Because once you can measure something, you can understand it — and understanding is the first step forward.
+
+---
+
+## Table of Contents
+
+- [Problem Statement](#problem-statement)
+- [Architecture](#architecture)
+- [Tech Stack](#tech-stack)
+- [Datasets](#datasets)
+- [Pipeline Layers](#pipeline-layers)
+- [How to Run](#how-to-run)
+- [CI/CD](#cicd)
+- [Project Structure](#project-structure)
+- [Dashboard](#dashboard)
+- [Bruin AI Data Analyst](#bruin-ai-data-analyst)
+- [Notes](#notes)
 
 ---
 
@@ -159,6 +159,15 @@ Two final tables, both partitioned by `year_date` (DATE) and clustered by `count
 | `employed_m` | Employment rate — men |
 | `employed_f` | Employment rate — women |
 
+### Key Design Decisions
+
+- **`pandas.melt()` instead of SQL UNPIVOT** — BigQuery does not support dynamic column pivoting, so the wide→long transformation happens in Python before the data reaches SQL
+- **Terraform as schema source of truth** — `strategy: merge` requires tables to exist before the first run; Terraform pre-creates all staging and analytics tables with explicit schemas
+- **`type: table` for Python load assets** — dlt (used internally by Bruin) raises a 409 conflict when multiple assets run in parallel with `strategy: merge`; full replace avoids this
+- **`--workers 1` for local** — DuckDB does not support concurrent writes; the GCP pipeline runs with full parallelism
+
+> Full rationale in [docs/strategy.md](docs/strategy.md).
+
 ---
 
 ## How to Run
@@ -166,35 +175,30 @@ Two final tables, both partitioned by `year_date` (DATE) and clustered by `count
 ### Prerequisites
 
 - Docker + Docker Compose installed and **running**
-- A `.env` file (copy from `.env.example`)
-- A `.bruin.yml` file (copy from `.bruin.yml.example`)
+- A `.env` file — **required for both local and GCP**, Docker Compose will fail without it:
+  ```bash
+  cp .env.example .env
+  ```
+  For local development, only `GCP_PROJECT_ID` and `GCS_BUCKET` can be left empty. `GOOGLE_CREDENTIALS` is only needed for the GCP pipeline.
+- A `.bruin.yml` file — same file for both local and cloud:
+  ```bash
+  cp .bruin.yml.example .bruin.yml
+  ```
+  `GCP_PROJECT_ID` and `GOOGLE_CREDENTIALS` are read from `.env` at runtime — no hardcoded credentials.
 
-> Both the local and GCP pipelines run inside Docker containers — make sure Docker is running before any `docker compose` or `docker exec` command.
+> Both pipelines run inside Docker containers — make sure Docker is running before any `docker compose` or `docker exec` command.
 
 ---
 
 ### Local Pipeline (DuckDB — no cloud required)
 
-**1. Configure `.bruin.yml`**
-
-```yaml
-default_environment: local
-
-environments:
-  local:
-    connections:
-      duckdb:
-        - name: "local_duckdb"
-          path: "data/duckdb.db"
-```
-
-**2. Start the container**
+**1. Start the container**
 
 ```bash
 docker compose up -d
 ```
 
-**3. Run the pipeline**
+**2. Run the pipeline**
 
 ```bash
 docker exec -it bruin-pipeline bruin run local-pipeline --workers 1
@@ -202,7 +206,7 @@ docker exec -it bruin-pipeline bruin run local-pipeline --workers 1
 
 > `--workers 1` is required — DuckDB does not support concurrent writes.
 
-**4. Query results**
+**3. Query results**
 
 ```python
 import duckdb
@@ -216,28 +220,21 @@ with duckdb.connect("data/duckdb.db") as conn:
 
 ### GCP Pipeline (BigQuery)
 
-**1. Create `.env`** from the example file:
+**1. Create `.env`** from the example file and fill in your GCP credentials:
 
 ```bash
 cp .env.example .env
-# then fill in your GCP project ID and service account JSON
 ```
 
 See `.env.example` for the required variables (`GOOGLE_CREDENTIALS`, `GCP_PROJECT_ID`, `GCS_BUCKET`).
 
-**2. Update `terraform/variables.tf`** with your GCP project details:
+**2. Start the containers**
 
-```hcl
-variable "project_id" {
-  default = "your-gcp-project-id"   # ← change this
-}
-
-variable "region" {
-  default = "EU"                     # ← change if needed
-}
+```bash
+docker compose up -d
 ```
 
-**3. Apply Terraform** (creates GCS bucket + BigQuery datasets + tables):
+**4. Apply Terraform** (creates GCS bucket + BigQuery datasets + tables):
 
 ```bash
 docker exec -it terraform sh
@@ -246,10 +243,10 @@ terraform apply -auto-approve
 exit
 ```
 
-**4. Run the GCP pipeline**
+**5. Run the GCP pipeline**
 
 ```bash
-docker exec -it bruin-pipeline bruin run gcp-pipeline
+docker exec -it bruin-pipeline bruin run --environment cloud gcp-pipeline
 ```
 
 ---
@@ -284,15 +281,13 @@ Configure these in **GitHub → Settings → Secrets and variables → Actions**
 
 | Name | Type | Value |
 |---|---|---|
-| `GOOGLE_CREDENTIALS` | Secret | GCP service account JSON (minified, single line) |
+| `GOOGLE_CREDENTIALS` | Secret | GCP service account JSON (content of the `.json` file) |
 | `BRUIN_YML` | Secret | Full content of your `.bruin.yml` |
 | `GCP_PROJECT_ID` | Variable | Your GCP project ID |
 | `GCS_BUCKET` | Variable | Your GCS bucket path (e.g. `gs://my-bucket`) |
+| `TF_BUCKET` | Variable | GCS bucket name without `gs://` prefix (e.g. `my-bucket`) |
+| `TF_REGION` | Variable | GCP region for Terraform (e.g. `EU`) |
 
-> `GOOGLE_CREDENTIALS` must be a **single-line minified JSON**. Run:
-> ```bash
-> python -c "import json; print(json.dumps(json.load(open('service-account.json'))))"
-> ```
 
 ---
 
