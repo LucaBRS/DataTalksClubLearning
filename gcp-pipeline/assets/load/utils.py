@@ -15,12 +15,12 @@ def validate_df(df: pd.DataFrame, name: str) -> None:
 
 
 def gcs_storage_options() -> dict:
-    return {"token": json.loads(os.environ["GCP_CREDENTIALS"])}
+    return {"token": json.loads(os.environ["GOOGLE_CREDENTIALS"])}
 
 
 def write_to_bq(df: pd.DataFrame, table: str) -> None:
     credentials = service_account.Credentials.from_service_account_info(
-        json.loads(os.environ["GCP_CREDENTIALS"])
+        json.loads(os.environ["GOOGLE_CREDENTIALS"])
     )
     client = bigquery.Client(project=GCP_PROJECT_ID, credentials=credentials)
     dataset = bigquery.Dataset(f"{GCP_PROJECT_ID}.load")

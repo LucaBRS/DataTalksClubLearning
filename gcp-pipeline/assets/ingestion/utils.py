@@ -22,7 +22,7 @@ def ingest_eurostat(dataset_code: str, output_name: str) -> None:
         raise ValueError(f"Eurostat returned None or empty dataset for '{dataset_code}' after {MAX_RETRIES} attempts.")
     df = df.rename(columns={"geo\\TIME_PERIOD": "country"})
     print(f"Downloaded {len(df)} rows, saving to GCS...")
-    credentials = json.loads(os.environ["GCP_CREDENTIALS"])
+    credentials = json.loads(os.environ["GOOGLE_CREDENTIALS"])
     df.to_parquet(
         f"{GCS_BUCKET}/{output_name}.parquet",
         index=False,
